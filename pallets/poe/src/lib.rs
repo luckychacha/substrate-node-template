@@ -32,6 +32,9 @@ pub mod pallet {
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
 		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+
+		#[pallet::constant]
+		type ClaimMaxLen: Get<u32>;
 	}
 
 	#[pallet::pallet]
@@ -61,6 +64,7 @@ pub mod pallet {
 		ProofAlreadyExist,
 		ClaimNotExist,
 		NotClaimOwner,
+		ClaimOverLength,
 	}
 
 	#[pallet::hooks]
@@ -75,6 +79,8 @@ pub mod pallet {
 		) -> DispatchResultWithPostInfo {
 
 			let sender = ensure_signed(origin)?;
+
+			ensure!(claim.len() <= T::ClaimMaxLen as usize, Error::<T>::ClaimOverLength);
 
 			ensure!(!Proofs::<T>::contains_key(&claim), Error::<T>::ProofAlreadyExist);
 
@@ -112,6 +118,7 @@ pub mod pallet {
 			claim: Vec<u8>,
 		) -> DispatchResultWithPostInfo {
 
+			let a = claim.len()
 			let sender = ensure_signed(origin)?;
 			let (owner, block_num) = Proofs::<T>::get(&claim).ok_or(Error::<T>::ClaimNotExist)?;
 
