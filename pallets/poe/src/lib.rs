@@ -8,9 +8,15 @@
 /// 暴露组件，从而让 runtime 引用
 pub use pallet::*;
 
+#[cfg(test)]
+mod mock;
+
+#[cfg(test)]
+mod tests;
+
 #[frame_support::pallet]
 pub mod pallet {
-	
+
 	/// 可调用函数的返回结果：DispatchResultWithPostInfo
 	/// runtime 开发所需要的宏：pallet_prelude::*
 	/// frame_system::pallet_prelude::* ：系统以来的信息
@@ -82,7 +88,7 @@ pub mod pallet {
 		}
 
 		#[pallet::weight(0)]
-		fn revoke_claim(
+		pub(super) fn revoke_claim(
 			origin: OriginFor<T>,
 			claim: Vec<u8>,
 		) -> DispatchResultWithPostInfo {
@@ -100,7 +106,7 @@ pub mod pallet {
 		}
 
 		#[pallet::weight(0)]
-		fn transfer_claim(
+		pub(super) fn transfer_claim(
 			origin: OriginFor<T>,
 			receiver: T::AccountId,
 			claim: Vec<u8>,
