@@ -56,6 +56,11 @@ pub mod pallet {
 		SomethingStored(u32, T::AccountId),
 	}
 
+
+    #[pallet::storage]
+    #[pallet::getter(fn kitties_count)]
+    pub type KittiesCount<T> = StorageValue<_, u32>;
+
 	// Errors inform users that something went wrong.
 	#[pallet::error]
 	pub enum Error<T> {
