@@ -196,7 +196,7 @@ pub mod pallet {
 
 
 		#[pallet::weight(0)]
-		pub fn set_kitty_price(origin: OriginFor<T>, kitty_id: KittyIndex, kitty_price: BalanceOf<T>) -> DispatchResult {
+		pub fn sell(origin: OriginFor<T>, kitty_id: KittyIndex, kitty_price: BalanceOf<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			ensure!(
 				Some(who.clone()) == Owner::<T>::get(kitty_id),
