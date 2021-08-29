@@ -188,13 +188,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
-		pub fn buy(origin: OriginFor<T>, owner: T::AccountId, kitty_id: KittyIndex) -> DispatchResult {
 
-			Ok(())
-		}
-
-
+		/// set a price for a kitty, if the price is greater than 0,it can be bought by other people.
 		#[pallet::weight(0)]
 		pub fn sell(origin: OriginFor<T>, kitty_id: KittyIndex, kitty_price: BalanceOf<T>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
@@ -209,6 +204,14 @@ pub mod pallet {
 
 			Ok(())
 		}
+
+		#[pallet::weight(0)]
+		pub fn buy(origin: OriginFor<T>, owner: T::AccountId, kitty_id: KittyIndex) -> DispatchResult {
+
+			Ok(())
+		}
+
+
 
 	}
 
