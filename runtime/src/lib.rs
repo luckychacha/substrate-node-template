@@ -282,6 +282,17 @@ impl pallet_poe::Config for Runtime {
 	type MaxLength = MaxLength;
 }
 
+parameter_types! {
+	pub const CreateKittyReserve: u64 = 100;
+}
+
+impl pallet_kitties::Config for Runtime {
+	type Currency = Balances;
+	type CreateKittyReserve = CreateKittyReserve;
+	type Event = Event;
+	type Randomness = RandomnessCollectiveFlip;
+}
+
 // Create the runtime by composing the FRAME pallets that were previously configured.
 construct_runtime!(
 	pub enum Runtime where
@@ -300,6 +311,7 @@ construct_runtime!(
 		// Include the custom logic from the pallet-template in the runtime.
 		TemplateModule: pallet_template::{Pallet, Call, Storage, Event<T>},
 		PoeModule: pallet_poe::{Pallet, Call, Storage, Event<T>},
+		KittiesModule: pallet_kitties::{Pallet, Call, Storage, Event<T>},
 	}
 );
 

@@ -25,6 +25,7 @@ runtime-benchmarks = [
     'pallet-balances/runtime-benchmarks',
     'pallet-template/runtime-benchmarks',
     'pallet-poe/runtime-benchmarks',
+    'pallet-kitties/runtime-benchmarks',
     'pallet-timestamp/runtime-benchmarks',
     'sp-runtime/runtime-benchmarks',
 ]
@@ -41,6 +42,7 @@ std = [
     'pallet-sudo/std',
     'pallet-template/std',
     'pallet-poe/std',
+    'pallet-kitties/std',
     'pallet-timestamp/std',
     'pallet-transaction-payment-rpc-runtime-api/std',
     'pallet-transaction-payment/std',
@@ -142,6 +144,11 @@ version = '3.0.0'
 [dependencies.pallet-poe]
 default-features = false
 path = '../pallets/poe'
+version = '3.0.0'
+
+[dependencies.pallet-kitties]
+default-features = false
+path = '../pallets/kitties'
 version = '3.0.0'
 
 [dependencies.pallet-timestamp]
