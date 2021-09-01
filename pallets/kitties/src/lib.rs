@@ -101,6 +101,8 @@ pub mod pallet {
 		InvalidKittyIndex,
 		ReserveFailed,
 		InvalidKittyPrice,
+		KittyNotForSale,
+		BalanceNotEnough,
 	}
 
 	#[pallet::hooks]
@@ -123,12 +125,8 @@ pub mod pallet {
 			new_owner_id: T::AccountId,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			ensure!(Some(who.clone()) == Owner::<T>::get(kitty_id), Error::<T>::NotKittyOwner);
-
-			Owner::<T>::insert(kitty_id, Some(new_owner_id.clone()));
-
+			let _ = Self::transfer_kitty(&who, &new_owner_id, kitty_id)?;
 			Self::deposit_event(Event::KittyTransfer(who, kitty_id, new_owner_id));
-
 			Ok(())
 		}
 
@@ -179,16 +177,16 @@ pub mod pallet {
 			Ok(())
 		}
 
-		
+
 		#[pallet::weight(0)]
 		pub fn buy(origin: OriginFor<T>, owner: T::AccountId, kitty_id: T::KittyIndex) -> DispatchResult {
-			let who = ensure_signed(origin);
-			T::Currency::unreserve(&owner, T::CreateKittyReserve::get());
+			let who = ensure_signed(origin)?;
+			ensure!(Some(owner.clone()) == Owner::<T>::get(kitty_id), Error::<T>::NotKittyOwner);
+			let _ = Self::buy_kitty(&owner, &who, kitty_id);
 
+			Self::deposit_event(Event::KittyBuy(who, kitty_id, owner));
 			Ok(())
 		}
-
-
 
 	}
 
@@ -215,6 +213,42 @@ pub mod pallet {
 			Ok(kitty_id)
 		}
 
+		fn buy_kitty(owner_id: &T::AccountId, new_owner_id: &T::AccountId, kitty_id: T::KittyIndex) -> Result<T::KittyIndex, DispatchError> {
+
+			let price = PriceOf::<T>::get(kitty_id)
+			.ok_or(Error::<T>::KittyNotForSale)?;
+			ensure!(
+				(price + T::CreateKittyReserve::get()) < T::Currency::free_balance(&new_owner_id),
+				Error::<T>::BalanceNotEnough
+			);
+
+			T::Currency::transfer(
+				&new_owner_id,
+				&owner_id,
+				price,
+				frame_support::traits::ExistenceRequirement::KeepAlive
+			)?;
+			Self::transfer_kitty(&owner_id, &new_owner_id, kitty_id)?;
+
+			PriceOf::<T>::remove(&kitty_id);
+			Ok(kitty_id)
+		}
+
+		fn transfer_kitty(owner_id: &T::AccountId, new_owner_id: &T::AccountId, kitty_id: T::KittyIndex) -> Result<T::KittyIndex, DispatchError> {
+			ensure!(
+				Some(owner_id.clone()) == Owner::<T>::get(kitty_id),
+				Error::<T>::NotKittyOwner
+			);
+
+			T::Currency::unreserve(&owner_id, T::CreateKittyReserve::get());
+			T::Currency::reserve(&new_owner_id, T::CreateKittyReserve::get()).map_err(|_| {
+				Error::<T>::ReserveFailed
+			})?;
+
+			Owner::<T>::insert(kitty_id, Some(new_owner_id.clone()));
+
+			Ok(kitty_id)
+		}
 
 		fn generate_kitty_id() -> Result<(T::KittyIndex, u32), DispatchError> {
 			let id = match Self::kitties_count() {

@@ -284,6 +284,7 @@ impl pallet_poe::Config for Runtime {
 
 parameter_types! {
 	pub const CreateKittyReserve: u64 = 100;
+	pub const KittyIndex: u32 = 0;
 }
 
 impl pallet_kitties::Config for Runtime {
@@ -291,6 +292,7 @@ impl pallet_kitties::Config for Runtime {
 	type CreateKittyReserve = CreateKittyReserve;
 	type Event = Event;
 	type Randomness = RandomnessCollectiveFlip;
+	type KittyIndex = KittyIndex;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
