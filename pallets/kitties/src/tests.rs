@@ -94,6 +94,16 @@ fn breed_kitty_failed_when_invalid_kitty_index() {
 }
 
 #[test]
+fn breed_kitty_failed_when_parent_index_duplicated() {
+    new_test_ext().execute_with( || {
+        assert_noop!(
+            KittiesModule::breed(Origin::signed(6), 0, 0),
+            Error::<Test>::SameParentIndex
+        );
+    })
+}
+
+#[test]
 fn breed_kitty_failed_when_not_kitty_owner() {
     new_test_ext().execute_with( || {
         assert_ok!(KittiesModule::create(Origin::signed(1)));
