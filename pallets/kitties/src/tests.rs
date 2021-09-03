@@ -26,7 +26,7 @@ fn transfer_kitty_works() {
         let account_id_1: u64 = 1;
         let account_id_2: u64 = 2;
         assert_ok!(KittiesModule::create(Origin::signed(account_id_1)));
-        assert_ok!(KittiesModule::transfer(Origin::signed(account_id_1), 0, account_id_2));
+        assert_ok!(KittiesModule::transfer(Origin::signed(account_id_1), account_id_2, 0));
     })
 }
 
@@ -38,7 +38,7 @@ fn transfer_kitty_failed_when_not_owner() {
         let account_id_3: u64 = 3;
         assert_ok!(KittiesModule::create(Origin::signed(account_id_1)));
         assert_noop!(
-            KittiesModule::transfer(Origin::signed(account_id_3), 0, account_id_2),
+            KittiesModule::transfer(Origin::signed(account_id_3), account_id_2, 0),
             Error::<Test>::NotKittyOwner
         );
     })
@@ -50,8 +50,8 @@ fn transfer_kitty_failed_when_reserve_failed() {
         assert_ok!(KittiesModule::create(Origin::signed(1)));
         let a = KittiesModule::transfer(
             Origin::signed(1),
+            3,
             0,
-            3
         );
         assert_noop!(
             a,

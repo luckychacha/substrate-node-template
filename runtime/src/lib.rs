@@ -46,6 +46,8 @@ pub use pallet_template;
 /// Import the poe pallet.
 pub use pallet_poe;
 
+pub use pallet_kitties;
+
 /// An index to a block.
 pub type BlockNumber = u32;
 
@@ -284,7 +286,6 @@ impl pallet_poe::Config for Runtime {
 
 parameter_types! {
 	pub const CreateKittyReserve: u64 = 100;
-	pub const KittyIndex: u32 = 0;
 }
 
 impl pallet_kitties::Config for Runtime {
