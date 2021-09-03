@@ -91,7 +91,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 
 	// Genesis funds
 	pallet_balances::GenesisConfig::<Test> {
-		balances: vec![(1, 200), (2, 100), (3, 66), (4, 99), (5, 66)],
+		balances: vec![(1, 200), (2, 100), (3, 66), (4, 99), (5, 66), (6, 1000), (7, 266)],
 	}
 	.assimilate_storage(&mut storage)
 	.unwrap();

@@ -90,6 +90,7 @@ pub mod pallet {
 		InvalidKittyPrice,
 		KittyNotForSale,
 		BalanceNotEnough,
+		KittyAlreadyHave,
 	}
 
 	#[pallet::hooks]
@@ -173,8 +174,7 @@ pub mod pallet {
 			kitty_id: T::KittyIndex,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			ensure!(Some(owner.clone()) == Owner::<T>::get(kitty_id), Error::<T>::NotKittyOwner);
-			let _ = Self::buy_kitty(&owner, &who, kitty_id);
+			let _ = Self::buy_kitty(&owner, &who, kitty_id)?;
 
 			Self::deposit_event(Event::KittyBuy(who, kitty_id, owner));
 			Ok(())
@@ -211,7 +211,11 @@ pub mod pallet {
 			new_owner_id: &T::AccountId,
 			kitty_id: T::KittyIndex,
 		) -> Result<T::KittyIndex, DispatchError> {
-			let price = PriceOf::<T>::get(kitty_id).ok_or(Error::<T>::KittyNotForSale)?;
+			ensure!(Some(owner_id.clone()) == Owner::<T>::get(kitty_id), Error::<T>::NotKittyOwner);
+			ensure!(Some(new_owner_id.clone()) != Owner::<T>::get(kitty_id), Error::<T>::KittyAlreadyHave);
+
+			let price = PriceOf::<T>::get(kitty_id)
+				.ok_or(Error::<T>::KittyNotForSale)?;
 			ensure!(
 				(price + T::CreateKittyReserve::get()) < T::Currency::free_balance(&new_owner_id),
 				Error::<T>::BalanceNotEnough
@@ -234,7 +238,6 @@ pub mod pallet {
 			kitty_id: T::KittyIndex,
 		) -> DispatchResult {
 			ensure!(Some(owner_id.clone()) == Owner::<T>::get(kitty_id), Error::<T>::NotKittyOwner);
-			T::Currency::unreserve(&owner_id, T::CreateKittyReserve::get());
 
 			ensure!(
 				T::Currency::can_reserve(&new_owner_id, T::CreateKittyReserve::get()),
@@ -244,6 +247,7 @@ pub mod pallet {
 				.map_err(|_| {
 					Error::<T>::ReserveFailed
 				})?;
+			T::Currency::unreserve(&owner_id, T::CreateKittyReserve::get());
 
 
 			Owner::<T>::insert(kitty_id, Some(new_owner_id.clone()));
