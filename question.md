@@ -37,7 +37,7 @@ pallet_balances::GenesisConfig::<Test> {
 
 ```
 
-> 用户 1 的余额是 200，足够创建一只猫，用户 3 余额 66 不足 100，所以猫从用户 1 转移给用户 3 的时候，我断言用户 3 质押时会抛出异常：Error::<T>::ReserveFailed。我 github 上的代码执行测试用例是可以通过的，第 8 - 11 行直接先判断 新用户 是否足够质押，第 16 行才是再返还 原用户 的质押。代码截图如下：
+> 用户 1 的余额是 200，足够创建一只猫，用户 3 余额 66 不足 100，所以猫从用户 1 转移给用户 3 的时候，我断言用户 3 质押时会抛出异常：ReserveFailed。我 github 上的代码执行测试用例是可以通过的，第 8 - 11 行直接先判断 新用户 是否足够质押，第 16 行才是再返还 原用户 的质押。代码截图如下：
 
 ```rust
 fn transfer_kitty(
@@ -79,7 +79,7 @@ fn transfer_kitty(
 >   test tests::transfer_kitty_failed_when_reserve_failed ... ok
 
 > 这时候，我偶然发现，调整代码顺序，新代码截图如下：
-> 第 9 行先对原持有者解除质押， 10 - 12 行对新用户的余额进行校验，判断是否足够质押，不够就抛出异常 Error::<T>::ReserveFailed，但是此时，测试用例就无法通过。
+> 第 9 行先对原持有者解除质押， 10 - 12 行对新用户的余额进行校验，判断是否足够质押，不够就抛出异常 ReserveFailed，但是此时，测试用例就无法通过。
 
 ```rust
 
@@ -151,10 +151,10 @@ fn transfer_kitty_failed_when_reserve_failed() {
 > right: `Err(Module { index: 1, error: 5, message: Some("InvalidKittyPrice") })`', pallets/kitties/src/tests.rs:65:9
 > note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
-> 此时的报错是可读的，而且可以看出左侧代码执行的结果确实抛出了异常 Error::<T>::ReserveFailed，和右侧我随意改为别的报错不匹配，那么为什么改之前的测试用例没通过呢？
+> 此时的报错是可读的，而且可以看出左侧代码执行的结果确实抛出了异常 ReserveFailed，和右侧我随意改为别的报错不匹配，那么为什么改之前的测试用例没通过呢？
 
 >后面我还进行了一种尝试，修改了测试用例的代码，截图如下：
-> 我让变量 a = 转移函数返回的结果，断言 a 就是 Error::<T>::ReserveFailed， 此时测试用例也是可以通过的，代码截图如下：
+> 我让变量 a = 转移函数返回的结果，断言 a 就是 ReserveFailed， 此时测试用例也是可以通过的，代码截图如下：
 
 ```rust
 
